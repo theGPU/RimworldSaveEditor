@@ -1,0 +1,52 @@
+<div class="toolbar" role="banner">
+  <span style="margin-left: 25px;">RimworldSaveEditor</span>
+</div>
+
+<div class="fileUploadAndInfoContainer">
+  <mat-card class="fileUploadAndInfoCard">
+    <mat-card-subtitle style="margin-bottom: -10px;">Upload save</mat-card-subtitle>
+    <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+
+    <div class="file-upload" style="display: inline-block;">
+
+      {{fileName || "No file uploaded yet."}}
+
+      <button mat-mini-fab color="warn" class="upload-btn" (click)="fileUpload.click()" *ngIf="!fileLoadingInProgress"
+        style="display: inline-block;">
+        <mat-icon>attach_file</mat-icon>
+      </button>
+
+      <!-- [style.display]="fileLoadingInProgress?'inline-block':'block'"-->
+      <mat-progress-spinner diameter="40" mode="indeterminate" class="fileUploadSpinner" *ngIf="fileLoadingInProgress"
+        style="display: inline-block; margin-bottom: -15px;"></mat-progress-spinner>
+    </div>
+  </mat-card>
+
+  <mat-card class="fileUploadAndInfoCard" *ngIf="getSave">
+    <mat-card-subtitle>Save meta</mat-card-subtitle>
+    <mat-card-content>
+      <span>Game version: {{getSaveGameVersion}}</span>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="fileUploadAndInfoCard" *ngIf="getSave">
+    <mat-card-subtitle style="margin-bottom: 0px; margin-top: -10px;">Download</mat-card-subtitle>
+    <mat-card-content style="align-items: center; display: flex; flex-direction: column;">
+      <button mat-mini-fab color="warn" (click)="onDownloadSave()">
+        <mat-icon>download</mat-icon>
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="saveEditorContent" *ngIf="getSave">
+  <div class="box-cards">
+    <div *ngFor="let pawnId of getPawnsIds">
+      <app-pawn-card [pawnId]="pawnId"></app-pawn-card>
+    </div>
+  </div>
+</div>
+
+
+
+<router-outlet></router-outlet>
