@@ -22,7 +22,7 @@
     <div *ngFor="let skillData of skills | keyvalue" class="skillContainer">
       <div>{{skillData.key}}</div>
       <div class="skillSliderContainer">
-        <img src="~/assets/img/passion/Passion{{skillData.value[0] != null ? skillData.value[0] : 'MinorGray'}}.png" [attr.data-currentPassion]="skillData.value[0] != null ? skillData.value[0] : 'MinorGray'" (click)="onPassionButtonClick($event, skillData.key)" style="align-self: center;">
+        <img src="assets/img/passion/Passion{{skillData.value[0] != null ? skillData.value[0] : 'MinorGray'}}.png" [attr.data-currentPassion]="skillData.value[0] != null ? skillData.value[0] : 'MinorGray'" (click)="onPassionButtonClick($event, skillData.key)" style="align-self: center;">
         <mat-slider [value]="skillData.value[1]" max="20" min="0" step="1" thumbLabel="true" tickInterval="1" aria-labelledby="example-name-label" class="skillSlider" (input)="onSkillSliderChanged($event, skillData.key)"></mat-slider>
       </div>
     </div>

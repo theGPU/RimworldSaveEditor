@@ -63,7 +63,7 @@ export class PawnCardComponent implements OnInit {
     let currentPassion = img.getAttribute("data-currentPassion");
     currentPassion = currentPassion == "MinorGray" ? currentPassion = "Minor" : currentPassion == "Minor" ? currentPassion = "Major" : currentPassion = "MinorGray";
     img.setAttribute("data-currentPassion", currentPassion);
-    img.src = "~/assets/img/passion/Passion"+currentPassion+".png";
+    img.src = "assets/img/passion/Passion"+currentPassion+".png";
     this.saveController.setPawnPassion(this.pawnId, skill, currentPassion);
     console.timeEnd("passion")
   }
