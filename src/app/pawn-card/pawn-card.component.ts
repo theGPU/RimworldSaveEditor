@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MatInput } from '@angular/material/input';
 import { MatSliderChange } from '@angular/material/slider';
+
 import { LoggerService as Logger } from '../services/logger.service';
-import { SaveControllerService, PawnNameType } from '../services/saveController.service';
-let xpath = require('xpath');
+import { SaveControllerService, PawnNameType } from '../services/save-controller.service';
+import { XpathService as xpath } from '../services/xpath.service';
 
 @Component({
   selector: 'app-pawn-card',
@@ -12,40 +13,29 @@ let xpath = require('xpath');
 })
 export class PawnCardComponent implements OnInit {
   @Input() pawnId: string = "";
-  public skills: {[key: string]: [string | null, number | null]} = {};
   public perks: any = [];
 
   public firstName: string = "";
   public nickname: string = "";
   public lastName: string = "";
 
-  private pawnNode: any;
+  private _skills: {[key: string]: [string | null, number | null]} | null = null;
+  public get skills() {
+    if (!this._skills)
+      this._skills = this.saveController.getPawnSkillsData(this.pawnId);
+    return this._skills;
+  }
 
-  constructor(private saveController: SaveControllerService) { }
+  constructor(private saveController: SaveControllerService, private changeDetection: ChangeDetectorRef) {
+    //this.changeDetection.detach();
+   }
 
   ngOnInit(): void {
-    this.pawnNode = xpath.select("//skills/../../id[contains(text(), '"+this.pawnId+"')]/..", this.saveController.save);
-    this.extractPawnName();
-    this.extractPawnSkills();
-  }
-
-  private extractPawnName() {
-    let nameElement: Element = xpath.select1("//skills/../../id[contains(text(), '"+this.pawnId+"')]/../name", this.saveController.save);
-    this.firstName = nameElement.getElementsByTagName("first")[0].textContent as string;
-    this.nickname = nameElement.getElementsByTagName("nick")[0].textContent as string;
-    this.lastName = nameElement.getElementsByTagName("last")[0].textContent as string;
-  }
-
-  private extractPawnSkills() {
-    let skillsElements : Element[] = xpath.select("//skills/../../id[contains(text(), '"+this.pawnId+"')]/../skills/skills/li", this.saveController.save);
-    Logger.debug(skillsElements)
-    for (let skillElement of skillsElements) {
-      let def = skillElement.getElementsByTagName("def")[0].textContent as string;
-      let passion = skillElement.getElementsByTagName("passion")[0]?.textContent;
-      let level = skillElement.getElementsByTagName("level")[0]?.textContent;
-      this.skills[def] = [passion != null ? passion : null, level != null ? Number(level) : null];
-    }
-    Logger.log("Skills for "+this.pawnId+":", this.skills);
+    const pawnName = this.saveController.getPawnName(this.pawnId);
+    this.firstName = pawnName[0];
+    this.nickname = pawnName[1];
+    this.lastName = pawnName[2];
+    //this.changeDetection.detectChanges();
   }
 
   public onNameInputBlur($event: Event) {
@@ -68,15 +58,19 @@ export class PawnCardComponent implements OnInit {
   }
 
   public onPassionButtonClick($event: Event, skill: string) {
+    console.time("passion");
     let img = $event.target as HTMLImageElement;
     let currentPassion = img.getAttribute("data-currentPassion");
     currentPassion = currentPassion == "MinorGray" ? currentPassion = "Minor" : currentPassion == "Minor" ? currentPassion = "Major" : currentPassion = "MinorGray";
     img.setAttribute("data-currentPassion", currentPassion);
-    img.src = "/assets/img/passion/Passion"+currentPassion+".png";
+    img.src = "~/assets/img/passion/Passion"+currentPassion+".png";
     this.saveController.setPawnPassion(this.pawnId, skill, currentPassion);
+    console.timeEnd("passion")
   }
 
   public onSkillSliderChanged($event: MatSliderChange, skill: string) {
+    console.time("skill");
     this.saveController.setPawnSkillLevel(this.pawnId, skill, ($event.value as number).toString());
+    console.timeEnd("skill");
   }
 }
